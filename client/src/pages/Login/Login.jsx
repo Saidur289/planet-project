@@ -4,14 +4,16 @@ import useAuth from '../../hooks/useAuth'
 import toast from 'react-hot-toast'
 import { TbFidgetSpinner } from 'react-icons/tb'
 import LoadingSpinner from '../../components/Shared/LoadingSpinner'
+import { saveUser } from '../../api/utils'
 
 const Login = () => {
   const { signIn, signInWithGoogle, loading, user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location?.state?.from?.pathname || '/'
-  if (user) return <Navigate to={from} replace={true} />
   if (loading) return <LoadingSpinner />
+  if (user) return <Navigate to={from} replace={true} />
+  
   // form submit handler
   const handleSubmit = async event => {
     event.preventDefault()
@@ -35,7 +37,8 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       //User Registration using google
-      await signInWithGoogle()
+     const data =  await signInWithGoogle()
+     await saveUser(data.data?.user)
       navigate(from, { replace: true })
       toast.success('Login Successful')
     } catch (err) {

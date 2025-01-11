@@ -1,7 +1,19 @@
 import { Helmet } from 'react-helmet-async'
 import UserDataRow from '../../../components/Dashboard/TableRows/UserDataRow'
+import useAuth from '../../../hooks/useAuth'
+import { useQuery } from '@tanstack/react-query'
+import useAxiosSecure from '../../../hooks/useAxiosSecure'
 
 const ManageUsers = () => {
+  const {user} = useAuth()
+  const axiosSecure = useAxiosSecure()
+  const {data: users= [], refetch, isLoading} = useQuery({
+    queryKey: ['users', user?.email],
+    queryFn: async() => {
+      const res = await axiosSecure.get(`/all-users/${user?.email}`)
+      return res.data
+    }
+  })
   return (
     <>
       <div className='container mx-auto px-4 sm:px-8'>
@@ -42,7 +54,10 @@ const ManageUsers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <UserDataRow />
+                  {
+                    users.map((userData) => <UserDataRow key={userData._id} refetch={refetch} userData = {userData} />)
+                  }
+                  
                 </tbody>
               </table>
             </div>
